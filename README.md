@@ -9,7 +9,17 @@ While Python provides a powerful threading interface, there is no way (externall
 ##### The Solution
 This is the exact situation I was faced with at work one day. So when my Stack Overflow searches turned up hundreds of hits on people asking how to kill Python threads but with no solutions, I decided to write my own.
 
-The `threader.c` and `threaderPy3.c` files are modules that will allow you to kill a thread from anywhere in its execution. If you are running Python 2.x, use `threader.c`. Python 3 users should use `threaderPy3.c`.
+The `threader.c`,  `threaderPy3.c`, and `threaderPy3windows.c` files are modules that will allow you to kill a thread from anywhere in its execution. If you are running Python 2.x, use `threader.c`. No Windows support is available for Python 2. Python 3 users should use `threaderPy3.c` or `threaderPy3windows.c`. The former file is for Linux and the latter is for Windows.
+
+##### Windows Warning
+The `threaderPy3windows.c` file uses `TerminateThread` to kill a thread. On Windows, this could result in important processes being left in undefined states. From Microsoft:
+> TerminateThread is a dangerous function that should only be used in the most extreme cases. You should call TerminateThread only if you know exactly what the target thread is doing, and you control all of the code that the target thread could possibly be running at the time of the termination. For example, TerminateThread can result in the following problems:
+> * If the target thread owns a critical section, the critical section will not be released.
+> * If the target thread is allocating memory from the heap, the heap lock will not be released.
+> * If the target thread is executing certain kernel32 calls when it is terminated, the kernel32 state for the thread's process could be inconsistent.
+> * If the target thread is manipulating the global state of a shared DLL, the state of the DLL could be destroyed, affecting other users of the DLL.
+
+So, be aware that `TerminateThread` doesn't provide the same safeguards as `pthread_cancel`.
 
 ##### How to use
 Whether you are running `threader.c` or `threaderPy3.c`, the build instructions are the same. The only thing you need to do with `threaderPy3.c` is rename it to `threader.c` so `setup.py` can find it.
@@ -19,6 +29,9 @@ First, you need to build the threader.c module. You can use the supplied setup.p
 
 Next, install the threader module:
 `sudo python setup.py install`
+
+On Windows, use:
+`python setup.py install`
 
 ###### Example Usage 1
 In your Python code, if you subclass the threading.Thread class, create a method called `end`. It will look like this:
