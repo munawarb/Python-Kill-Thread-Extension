@@ -5,11 +5,11 @@ static PyObject* threader_killThread(PyObject*, PyObject*);
 
 static PyObject*
 threader_killThread(PyObject* self, PyObject* arg) {
-	int id = 0;
-	if (!PyArg_ParseTuple(arg, "i", &id))
+	unsigned long id = 0;
+	if (!PyArg_ParseTuple(arg, "u", &id))
 		return NULL;
 	int succeeded = pthread_cancel(id);
-	printf("Ended thread %d, with return code %d ", id, succeeded);
+	printf("Ended thread %u, with return code %d ", id, succeeded);
 	return Py_BuildValue("i", succeeded);
 }
 
