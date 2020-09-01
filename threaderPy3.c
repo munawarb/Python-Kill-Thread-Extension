@@ -9,7 +9,7 @@ threader_killThread(PyObject* self, PyObject* arg) {
 	if (!PyArg_ParseTuple(arg, "l", &id))
 		return NULL;
 	int succeeded = pthread_cancel(id);
-	printf("Ended thread %d, with return code %d\n ", id, succeeded);
+	printf("Ended thread %ld, with return code %d\n ", id, succeeded);
 	return Py_BuildValue("l", succeeded);
 }
 
